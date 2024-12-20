@@ -1,0 +1,90 @@
+@startuml StateTransitionDiagram
+[*] --> LoggedOut : Start
+
+state LoggedOut {
+    [*] --> LoginPage
+    LoginPage --> LoggedIn : Login Successful
+    LoginPage --> LoginPage : Invalid Wallet or Signature Retry
+}
+
+state LoggedIn {
+    [*] --> Dashboard
+    Dashboard --> MarketDataPage : Select "View Market Data"
+    Dashboard --> TradePage : Select "Trade"
+
+    state MarketDataPage {
+        [*] --> CheckCache
+        CheckCache --> DisplayMarketData : Cache Hit
+        CheckCache --> LoadingData : Cache Miss
+
+        LoadingData --> DisplayMarketData : Data Retrieved
+        LoadingData --> Error : Connection Failure
+        DisplayMarketData --> [*]
+        Error --> [*] : Close Market View
+    }
+
+    state TradePage {
+        [*] --> EnterTradeDetails
+        EnterTradeDetails --> ValidateBalance
+        ValidateBalance --> InsufficientBalance : Balance Insufficient
+        ValidateBalance --> ConfirmTransaction : Balance Sufficient
+
+        InsufficientBalance --> EnterTradeDetails : Modify Transaction
+        InsufficientBalance --> [*] : Cancel Trade
+
+        ConfirmTransaction --> TransactionProcessing : Submit Transaction
+        TransactionProcessing --> TransactionSuccess : Transaction Confirmed
+
+        TransactionSuccess --> [*] : Close Trade View
+        TransactionSuccess --> DisplayPortfolio : View Portfolio
+    }
+}
+@enduml
+
+
+
+
+
+' @startuml StateTransition
+' skinparam state {
+'     BackgroundColor<<Dashboard>> LightBlue
+'     BorderColor<<Dashboard>> DarkBlue
+'     BackgroundColor<<Transaction>> LightGreen
+'     BorderColor<<Transaction>> DarkGreen
+' }
+
+' [*] --> Idle : Start
+
+' Idle --> LoginPending : Trader accesses login page
+' LoginPending --> Idle : Authentication Failed
+' LoginPending --> Dashboard : Authentication Successful
+
+' state Dashboard <<Dashboard>> {
+'     [*] --> ViewingMarketData
+'     ViewingMarketData --> [*] : Return to Dashboard
+
+'     [*] --> PerformingTransaction : Select "Trade"
+'     state PerformingTransaction <<Transaction>> {
+'         [*] --> EnterTransactionDetails
+'         EnterTransactionDetails --> ViewingPortfolio
+'         ViewingPortfolio --> EnterTransactionDetails : Return to Transaction Screen
+
+'         EnterTransactionDetails --> ValidatingTransaction : Validate Balance
+'         ValidatingTransaction --> ConfirmingTransaction : Balance Sufficient
+'         ValidatingTransaction --> TransactionFailed : Insufficient Balance
+
+'         TransactionFailed --> EnterTransactionDetails : Retry Transaction
+'         TransactionFailed --> [*] : Cancel Transaction
+
+'         ConfirmingTransaction --> ExecutingTransaction : Execute on Blockchain
+'         ExecutingTransaction --> TransactionSuccess : Transaction Confirmed
+'         ExecutingTransaction --> TransactionFailed : Blockchain Error
+'         TransactionSuccess --> [*] : Return to Dashboard
+'     }
+'     PerformingTransaction --> [*]
+' }
+
+' Dashboard --> Error : System Error (e.g., Oracle or Blockchain Failure)
+' Error --> Idle : Restart System
+' Idle --> [*] : End
+' @enduml

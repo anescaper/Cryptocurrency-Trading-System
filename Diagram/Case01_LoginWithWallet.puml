@@ -1,0 +1,79 @@
+@startuml case01
+left to right direction
+actor Trader as T
+
+usecase "Login with Wallet" as UC1
+
+T --> UC1
+@enduml
+
+@startuml caseSequenceDiagram01
+hide footbox
+actor Trader as T
+boundary "Interface Panel" as UI
+control "AuthenticationManager" as AM
+control "ChallengeGenerator" as CG
+
+T -> UI : 1: Access Login Page
+UI -> AM : 2: Request Login Page
+AM -> UI : 3: Display Login Page
+
+T -> UI : 4: Connect Wallet
+UI -> AM : 5: Process Wallet Connection
+
+group E1: Unsupported Wallet Type
+    AM -> UI : 5.1: Display "Unsupported Wallet Type"
+    note over T, UI : This use case ends.
+end
+AM -> UI : 6: Connect Wallet Successful
+
+UI -> CG : 7: Request Challenge Generation
+CG -> CG : 8: Generate One-Time Challenge
+CG -> UI : 9: Return One-Time Challenge
+
+loop Retry Until Valid Signature
+    T -> UI : 10: Sign Challenge with Private Key
+    UI -> CG : 11: Submit Signed Challenge
+    CG -> AM : 12: Verify Signature Using Public Key
+
+    group E2: Invalid Signature
+        AM -> UI : 12.1: Display "Authentication Failed"
+    end
+end
+
+AM -> UI : 13: Display "Login Successful"
+@enduml
+
+
+' @startuml caseSequence01
+' hide footbox
+' actor Trader as T
+' boundary "Interface Panel" as UI
+' participant "Cryptocurrency Trading System" as System
+
+' T -> UI : Access Login Page (SRS_REQ_101)
+' UI -> System : Request Login Page (SRS_REQ_101)
+' System -> UI : Display Login Page
+
+' T -> UI : Connect Wallet (SRS_REQ_102)
+' UI -> System : Process Wallet Connection (SRS_REQ_102)
+' System -> UI : Prompt to Connect Wallet
+
+' group E1: Unsupported Wallet Type
+'     System -> UI : Display "Unsupported Wallet Type" (SRS_REQ_107_1)
+'     note over T, UI : This use case ends.
+' end
+
+' UI -> System : Request Challenge Generation (SRS_REQ_103)
+' System -> UI : Generate One-Time Challenge (SRS_REQ_103)
+
+' T -> UI : Sign Challenge with Private Key (SRS_REQ_104)
+' UI -> System : Submit Signed Challenge (SRS_REQ_104)
+' System -> System : Verify Signature Using Public Key (SRS_REQ_105)
+
+' group E2: Invalid Signature
+'     System -> UI : Display "Authentication Failed" (SRS_REQ_108_1)
+'     note over T, UI : This use case continues.
+' end
+' System -> UI : Display "Login Successful" (SRS_REQ_106)
+' @enduml

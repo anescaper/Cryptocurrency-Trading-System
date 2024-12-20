@@ -1,0 +1,45 @@
+@startuml case04
+left to right direction
+actor Trader as T
+usecase "View Portfolio" as UC2
+actor "Decentralized Oracle" as O
+
+T --> UC2
+UC2 --> O
+@enduml
+
+@startuml caseSequence04
+hide footbox
+actor Trader as T
+boundary "Interface Panel" as UI
+participant "PortfolioManager" as PM
+participant "BlockchainModule" as BM
+participant "OracleModule" as OM
+
+T -> UI : Select "View Portfolio" (SRS_REQ_401)
+UI -> PM : Request Portfolio Data (SRS_REQ_401)
+PM -> BM : Retrieve Holdings and Transaction History (SRS_REQ_402)
+BM --> PM : Return Holdings and Transaction History
+PM -> OM : Query Real-Time Market Prices (SRS_REQ_403)
+OM --> PM : Return Aggregated Market Prices
+PM -> PM : Calculate Portfolio Value (SRS_REQ_404)
+PM -> UI : Display Portfolio Value, Holdings, and Transaction History (SRS_REQ_406)
+
+alt Filter Portfolio View
+    T -> UI : Apply Filters (e.g., by cryptocurrency or time range) (SRS_REQ_407_1)
+    UI -> PM : Request Filtered Data (SRS_REQ_407_2)
+    PM -> BM : Fetch Filtered Holdings or Transactions
+    BM --> PM : Return Filtered Data
+    PM -> UI : Display Filtered Portfolio Data
+end
+
+group Exception: Oracle Connection Failure
+    PM -> UI : Display "Market Data Unavailable" (SRS_REQ_408_1)
+    note over T, UI : This use case ends.
+end
+
+group Exception: Blockchain Connection Failure
+    PM -> UI : Display "Portfolio Data Unavailable" (SRS_REQ_409_1)
+    note over T, UI : This use case ends.
+end
+@enduml

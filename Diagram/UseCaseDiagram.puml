@@ -1,0 +1,29 @@
+@startuml usecase
+left to right direction
+
+' skinparam actorStyle "stick" 
+' skinparam Actor {
+'     alignment center
+' }
+
+actor Trader as T
+actor "Decentralized Oracle" as O
+
+rectangle "Cryptocurrency Trading System" as System {
+    usecase "Login with Wallet" as UC1
+    usecase "View Market Data" as UC2
+    usecase "Perform Transactions" as UC3
+}
+
+T --> UC1
+T --> UC2
+T --> UC3
+
+UC2 --> O
+UC3 --> O
+
+
+@enduml
+
+
+

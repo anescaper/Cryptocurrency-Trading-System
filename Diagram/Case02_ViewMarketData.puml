@@ -1,0 +1,79 @@
+@startuml case02
+left to right direction
+actor Trader as T
+usecase "View Market Data" as UC2
+actor "Decentralized Oracle" as O
+
+T --> UC2
+UC2 --> O
+@enduml
+
+@startuml caseSequenceDiagram02
+hide footbox
+actor Trader as T
+boundary "Interface Panel" as UI
+control "MarketDataManager" as MDM
+entity "MarketData" as MD
+actor "Decentralized Oracle" as O
+
+T -> UI : 1: Select "View Market Data"
+UI -> MDM : 2: Request Market Data
+MDM -> MD : 3: Check Cached Data
+
+alt AF1: Cache Hit (Valid Cached Data Found)
+    MD --> MDM : 3.1: Return Cached Data
+    MDM -> UI : 3.2: Display Cached Market Data
+else Cache Miss (No Valid Cached Data)
+    MDM -> O : 3.3: Query Real-Time Market Data
+
+    group E1: Oracle Connection Failure
+        O --> MDM : 3.3.1: Connection Failure
+        MDM -> UI : 3.3.2: Display "Market Data Unavailable"
+        note over T, UI : This use case ends.
+    end
+
+    O --> MDM : 3.4: Return Aggregated Market Data
+    MDM -> MD : 3.5: Update Cache with Retrieved Data
+    MDM -> UI : 3.6: Display Aggregated Market Data
+end
+
+alt AF2: Filter Market Data
+    T -> UI : 4.1: Apply Filters
+    UI -> MDM : 4.2: Request Filtered Data
+    MDM -> MD : 4.3: Apply Filters to Market Data
+    MDM -> UI : 4.4: Display Filtered Market Data
+end
+
+T -> UI : 5: Close Market Data Page and Return to Dashboard
+@enduml
+
+
+' @startuml caseSequence02
+' hide footbox
+' actor Trader as T
+' boundary "Interface Panel" as UI
+' participant "Cryptocurrency Trading System" as System
+' actor "Decentralized Oracle" as O
+
+' T -> UI : Select "View Market Data" (SRS_REQ_203)
+' UI -> System : Request Market Data (SRS_REQ_203)
+' System -> O : Query Market Data (SRS_REQ_204)
+
+' group E1: Oracle Connection Failure
+'     O --> System : Connection Failure (SRS_REQ_208_1)
+'     System -> UI : Display "Market Data Unavailable" (SRS_REQ_208_1)
+'     note over T, UI : This use case ends.
+' end
+
+' System -> O : Retrieve and Aggregate Data (SRS_REQ_205)
+' O --> System : Return Aggregated Data
+' System -> UI : Display Aggregated Market Data (SRS_REQ_206)
+
+' alt A1：Filter Data by Preferences
+'     T -> UI : Apply Filters (SRS_REQ_207_1)
+'     UI -> System : Request Filtered Data (SRS_REQ_207_1)
+'     System -> O : Fetch Filtered Data
+'     O --> System : Return Filtered Data
+'     System -> UI : Display Filtered Data (SRS_REQ_207_2)
+' end
+' @enduml

@@ -1,0 +1,118 @@
+@startuml BasicClassDiagram
+left to right direction
+skinparam classAttributeIconSize 0
+left to right direction
+
+' Classes
+class "Interface Panel" <<boundary>> {
+}
+class "AuthenticationManager" <<control>> {
+}
+class "ChallengeGenerator" <<control>> {
+}
+class "MarketDataManager" <<control>> {
+}
+class "TransactionManager" <<control>> {
+}
+class "BlockchainModule" <<control>> {
+}
+class "Portfolio" <<entity>> {
+}
+class "Transaction" <<entity>> {
+}
+class "MarketData" <<entity>> {
+}
+
+' Relationships
+"Interface Panel" -- "AuthenticationManager" : 1
+
+"AuthenticationManager" -- "ChallengeGenerator" : 1
+
+"Interface Panel" -- "MarketDataManager" : 1
+"MarketDataManager" *-- "MarketData" : 1..*
+
+"Interface Panel" -- "TransactionManager" : 1
+"TransactionManager" *-- "Transaction" : 1..*
+"TransactionManager" o-- "Portfolio" : 1..*
+"TransactionManager" -- "BlockchainModule" : 1
+@enduml
+
+
+@startuml ClassDiagramwithThreeCompartments
+left to right direction
+
+class "Interface Panel" <<boundary>> {
+  -currentView: String
+  -filters: Map
+  -transactionInput: Map
+  +displayLoginPage()
+  +displayMarketData()
+  +displayTransactionForm()
+}
+
+class "AuthenticationManager" <<control>> {
+  -activeSessions: Map
+  -walletWhitelist: List
+  +authenticateUser(walletAddress: String, signature: String): Boolean
+  +logoutUser()
+}
+
+class "ChallengeGenerator" <<control>> {
+  -challengeStore: Map
+  +generateChallenge(walletAddress: String): String
+  +verifyChallenge(signature: String): Boolean
+}
+
+class "MarketDataManager" <<control>> {
+  -cache: Map
+  +fetchMarketData(): List
+  +cacheMarketData(data: List)
+  +checkCache(): MarketData
+}
+
+class "TransactionManager" <<control>> {
+  -transactionList: List
+  +createTransaction(crypto: String, amount: Float, price: Float): Transaction
+  +validateBalance(balance: Float): Boolean
+  +confirmTransaction(transaction: Transaction): Boolean
+  +executeTransaction(transaction: Transaction): Boolean
+}
+
+class "BlockchainModule" <<control>> {
+  -networkConnection: String
+  +executeSmartContract(transaction: Transaction): Boolean
+  +verifyTransaction(hash: String): Boolean
+}
+
+class "Portfolio" <<entity>> {
+  -holdings: Map
+  -transactionHistory: List
+  +getHoldings(): Map
+  +addTransaction(transaction: Transaction)
+}
+
+class "Transaction" <<entity>> {
+  -cryptoType: String
+  -amount: Float
+  -price: Float
+  +getDetails(): String
+}
+
+class "MarketData" <<entity>> {
+  -cryptoName: String
+  -price: Float
+  +updatePrice(newPrice: Float)
+}
+
+' Relationships
+"Interface Panel" -- "AuthenticationManager"
+"AuthenticationManager" -- "ChallengeGenerator"
+
+"Interface Panel" -- "MarketDataManager"
+"MarketDataManager" *-- "MarketData" : 1..*
+
+"Interface Panel" -- "TransactionManager"
+"TransactionManager" *-- "Transaction" : 1..*
+"TransactionManager" o-- "Portfolio" : 1..*
+"TransactionManager" -- "BlockchainModule"
+@enduml

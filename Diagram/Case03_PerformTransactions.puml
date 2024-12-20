@@ -1,0 +1,113 @@
+@startuml case03
+left to right direction
+actor Trader as T
+usecase "Perform Transactions" as UC2
+actor "Decentralized Oracle" as O
+
+T --> UC2
+UC2 --> O
+@enduml
+
+@startuml caseSequenceDiagram03
+hide footbox
+actor Trader as T
+boundary "Trade Panel" as UI
+control "TransactionManager" as TM
+control "BlockchainModule" as BM
+entity "Transaction" as TX
+entity "Portfolio" as PF
+actor "Decentralized Oracle" as O
+
+T -> UI : 1: Select "Trade"
+UI -> TM : 2: Request Transaction Setup
+TM -> O : 3: Query Real-Time Market Prices
+O --> TM : 4: Return Aggregated Prices
+TM -> UI : 5: Display Aggregated Market Data
+
+T -> UI : 6: Input Transaction Details (buy/sell, cryptocurrency, amount, price
+UI -> TM : 7: Submit Transaction Details
+TM -> TX : 8: Create Transaction Object
+TX --> TM : 9: Transaction Object Created
+TM -> PF : 10: Validate Trader's Balance
+
+group E1: Insufficient Balance
+    TM -> UI : 10.1: Display "Insufficient Balance"
+    note over T, UI : This use case ends.
+end
+
+alt AF1: Modify Transaction Details
+    T -> UI : 11.1: Modify Transaction Parameters
+    UI -> TM : 11.2: Submit Updated Transaction Details
+    TM -> PF : 11.3: Revalidate Trader's Balance
+    group E1: Insufficient Balance on Modification
+        TM -> UI : 11.4: Display "Insufficient Balance"
+    end
+end
+
+T -> UI : 12: Confirm Transaction
+UI -> TM : 13: Process Transaction
+TM -> BM : 14: Execute Transaction on Blockchain
+BM --> TX : 15: Update Transaction Status
+
+TM -> PF : 16: Update Trader's Portfolio
+TM -> UI : 17: Display Transaction Confirmation
+
+alt AF2: View Token-Specific Details
+    T -> UI : 18.1: Request Token-Specific Details
+    UI -> PF : 18.2: Retrieve Token Data
+    PF --> UI : 18.3: Display Token Details
+end
+
+alt AF3: View Entire Portfolio
+    T -> UI : 19.1: Request Entire Portfolio
+    UI -> PF : 19.2: Retrieve Portfolio Data
+    PF --> UI : 19.3: Display Entire Portfolio
+end
+
+T -> UI : 20: Close Trade Page and Return to Dashboard
+@enduml
+
+
+
+'@startuml caseSequence03
+' hide footbox
+' actor Trader as T
+' boundary "Interface Panel" as UI
+' participant "Cryptocurrency Trading System" as System
+' participant "Blockchain Smart Contract" as BSC
+' actor "Decentralized Oracle" as O
+
+' T -> UI : Select "Trade" (SRS_REQ_301)
+' UI -> System : Request Transaction Setup (SRS_REQ_301)
+' System -> UI : Prompt for Transaction Details (SRS_REQ_302)
+
+' T -> UI : Enter Transaction Details (buy/sell, crypto type, amount, price) (SRS_REQ_302)
+' UI -> System : Submit Transaction Details (SRS_REQ_302)
+' System -> O : Query Real-Time Prices (SRS_REQ_303)
+' O --> System : Return Aggregated Prices (SRS_REQ_303)
+' System -> System : Validate Balance (SRS_REQ_304)
+
+' alt Modify Transaction Details
+'     T -> UI : Modify Transaction Details (e.g., amount, price) (SRS_REQ_309_1)
+'     UI -> System : Submit Modified Details (SRS_REQ_309_1)
+'     System -> System : Revalidate Balance (SRS_REQ_309_2)
+' end
+
+' group E1: Insufficient Balance
+'     System -> UI : Display "Insufficient Balance" (SRS_REQ_310_1)
+'     note over T, UI : This use case ends.
+' end
+
+' T -> UI : Confirm Transaction (SRS_REQ_306)
+' UI -> System : Process Transaction (SRS_REQ_306)
+' System -> BSC : Execute Transaction on Blockchain (SRS_REQ_307)
+
+' group E2: Blockchain Transaction Failure
+'     BSC --> System : Transaction Failure (SRS_REQ_311_1)
+'     System -> UI : Display "Transaction Failed" (SRS_REQ_311_1)
+'     note over T, UI : Trader use case continue.
+' end
+
+' BSC --> System : Transaction Confirmed (SRS_REQ_308)
+' System -> UI : Update Portfolio and Display Confirmation (SRS_REQ_308)
+' @enduml

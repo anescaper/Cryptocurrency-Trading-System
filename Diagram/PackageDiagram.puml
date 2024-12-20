@@ -1,0 +1,54 @@
+@startuml packageDiagram
+left to right direction
+package AuthenticationArtifact {
+    class AuthenticationManager <<control>>
+    class ChallengeGenerator <<control>>
+}
+
+package TransactionController {
+    class TransactionManager <<control>>
+    class PortfolioManager <<control>>
+}
+
+package BlockchainIntegration {
+    class OracleModule <<control>>
+    class BlockchainModule <<control>>
+}
+
+package TradingInterface {
+    class "Interface Panel" <<boundary>>
+}
+
+package SystemEntities {
+    class Portfolio <<entity>>
+    class Transaction <<entity>>
+}
+
+AuthenticationArtifact ..> TransactionController : Uses
+TransactionController ..> BlockchainIntegration : Interacts
+TransactionController ..> SystemEntities : Manages
+TradingInterface ..> AuthenticationArtifact : Initiates
+TradingInterface ..> TransactionController : Initiates
+@enduml
+
+@startuml PackageDiagram
+package "CryptocurrencySystemArtifact" {
+  class "Portfolio" <<entity>>
+  class "Transaction" <<entity>>
+  class "MarketData" <<entity>>
+}
+
+package "OperationController" {
+  class "AuthenticationManager" <<control>>
+  class "ChallengeGenerator" <<control>>
+  class "MarketDataManager" <<control>>
+  class "TransactionManager" <<control>>
+  class "BlockchainModule" <<control>>
+}
+
+package "CryptocurrencySystemInterface" {
+  class "Interface Panel" <<boundary>>
+}
+"OperationController" -- "CryptocurrencySystemArtifact"
+"CryptocurrencySystemInterface" -- "OperationController"
+@enduml
